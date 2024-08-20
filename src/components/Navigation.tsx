@@ -6,6 +6,7 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { buttonVariants } from "@/components/ui/button";
 import Image from "next/image";
 import logo from "../assets/images/logo.svg";
+import { activeLink } from "@/services/activeRoute";
 
 type NavLink = {
   label: string;
@@ -17,21 +18,18 @@ type Props = {
 
 export const Navigation = ({ navLinks }: Props) => {
   const pathname = usePathname();
-  const session = useSession();
+  const { data: session, status } = useSession();
+  const opa = useSession();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/";
-  console.log(session);
+  console.log(opa);
   return (
     <>
       <nav>
-        <ul className="flex h-full">
+        <ul className="flex h-full ">
           {/* <Image src={logo} alt={"logo"} className="w-16 h-16 bg-white/50 "  /> */}
           {navLinks.map((link) => {
-            console.log(pathname, link.href);
-            const isActive =
-              pathname === link.href ||
-              (pathname.includes(link.href) && link.href.length > 1);
-
+            const isActive = activeLink(link.href, pathname, callbackUrl);
             return (
               <li key={link.label} className="flex items-center">
                 <Link
@@ -49,7 +47,7 @@ export const Navigation = ({ navLinks }: Props) => {
           })}
         </ul>
       </nav>
-      {!session?.data ? (
+      {!(status === "authenticated") ? (
         <Link className={`py-5 px-10 font-serif text-white`} href={"/signin"}>
           Log in
         </Link>

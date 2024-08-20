@@ -18,6 +18,9 @@ const config = {
       },
     },
     extend: {
+      backgroundImage: {
+        "login-bg": "url('/assets/images/signIn/background.gif')",
+      },
       fontFamily: {
         sans: ["var(--font-sans)", ...fontFamily.sans],
       },
@@ -70,14 +73,51 @@ const config = {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" },
         },
+        card: {
+          "0%": {
+            transform: "translateX(-100%)",
+          },
+          "55%": {
+            transform: "translateX(-100%)",
+          },
+          to: {
+            transform: "translateX(0)",
+          },
+        },
+        truck: {
+          "0%": {
+            bottom: "90px",
+            left: "-181px",
+          },
+          "60%": {
+            left: "500px",
+            bottom: "-50px",
+          },
+          "100%": {
+            bottom: "-90px",
+            left: "700px",
+            transform: "scale(0.7)",
+          },
+        },
+        login: {
+          from: {
+            opacity: "0",
+          },
+          to: {
+            opacity: "1",
+          },
+        },
       },
       animation: {
+        login: "login ease-in-out 1.5s",
+        truck: "truck steps(200) 4s 1s",
+        card: "card linear 3s",
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+ plugins: [require("tailwindcss-animate")],
 } satisfies Config;
 
 export default config;

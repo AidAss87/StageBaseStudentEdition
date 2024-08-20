@@ -1,19 +1,23 @@
-import { getAllPosts, getAllPostsBySearch } from "@/services/getAllPosts";
+import { getAllPosts, getAllPostsBySearch } from "@/services/posts";
 import { create } from "zustand";
 
-type UsePosts = {
+interface UsePosts {
   posts: any[];
   loading: boolean;
-  getAllPosts: () => Promise<void>;
+  getAllPosts: (stage: string) => Promise<void>;
   getPostsBySearch: (value: string) => Promise<void>;
-};
+}
+interface AdminState {
+  admin: boolean;
+  changeAdmin: (arg0: boolean) => void;
+}
 
 export const usePosts = create<UsePosts>()((set) => ({
   posts: [],
   loading: false,
-  getAllPosts: async () => {
+  getAllPosts: async (stage) => {
     set({ loading: true });
-    const posts = await getAllPosts();
+    const posts = await getAllPosts(stage);
     set({ posts, loading: false });
   },
   getPostsBySearch: async (search) => {
@@ -21,4 +25,12 @@ export const usePosts = create<UsePosts>()((set) => ({
     const posts = await getAllPostsBySearch(search);
     set({ posts, loading: false });
   },
+}));
+
+export const useAdmin = create<AdminState>((set) => ({
+  admin: false,
+  changeAdmin: (state) =>
+    set(() => ({
+      admin: state,
+    })),
 }));

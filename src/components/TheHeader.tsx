@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Navigation } from "./Navigation";
+import { ThemeButton } from "./ThemeButton";
 
 const navItems = [
   { label: "Home", href: "/" },
@@ -12,8 +13,9 @@ const navItems = [
 export const TheHeader = () => {
   return (
     <header className="h-16 fixed top-0 z-50 w-full border-b border-border/40 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex justify-between ">
+      <div className="container flex justify-between items-center">
         <Navigation navLinks={navItems} />
+        <ThemeButton />
       </div>
     </header>
   );

@@ -1,10 +1,14 @@
-import { SignInForm } from "@/components/SignInForm";
+
+import { Login } from "@/components/Login";
+import Register from "@/components/Register";
+
 
 export default async function SignIN() {
+
   return (
-    <div>
-      <h1 className="">Войти</h1>
-      <SignInForm />
+    <div className="flex items-center justify-center h-[100%]">
+
+      <Login />
     </div>
   );
 }

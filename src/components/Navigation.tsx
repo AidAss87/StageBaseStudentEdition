@@ -47,6 +47,10 @@ export const Navigation = ({ navLinks }: Props) => {
           })}
         </ul>
       </nav>
+      {session?.user.role === "admin" &&
+        <Link className={`py-5 px-10 font-serif text-white`} href={"/users"}>
+          Пользователи
+        </Link>}
       {!(status === "authenticated") ? (
         <Link className={`py-5 px-10 font-serif text-white`} href={"/signin"}>
           Log in

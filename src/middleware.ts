@@ -57,5 +57,6 @@ export const config = {
     "/stage2/:path*",
     "/stage3/:path*",
     "/stage4/:path*",
+    "/users/:path*",
   ], // Обработка всех указанных маршрутов
 };

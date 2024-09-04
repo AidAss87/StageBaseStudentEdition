@@ -18,10 +18,16 @@ model Post {
 }
 
 model User {
-  id    String  @id @default(uuid())
-  name  String @unique
-  pass String  @unique
-  role  String  @default("guest") 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id         String   @id @default(uuid())
+  name       String   @unique
+  email      String   @unique
+  pass       String
+  role       String   @default("guest")
+  isVerified             Boolean   @default(false)
+  forgotPasswordToken    String? @unique
+  forgotPasswordTokenExpiry DateTime?
+  verifyToken            String? @unique
+  verifyTokenExpiry      DateTime? 
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
 }

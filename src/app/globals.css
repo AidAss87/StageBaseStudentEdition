@@ -73,6 +73,14 @@
   image-rendering: -o-crisp-edges; /* Opera 12 */
   image-rendering: pixelated; /* Chrome 41+ and Opera 26+ */
 }
+/* fonts.css */
+@font-face {
+  font-family: "jet-brains";
+  src: url("/fonts/JetBrainsMono-VariableFont_wght.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
 
 @layer base {
   * {

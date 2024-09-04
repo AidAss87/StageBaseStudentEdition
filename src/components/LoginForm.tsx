@@ -18,8 +18,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { toast } from "@/components/ui/use-toast";
-import Register from "./Register";
+import { toast } from "@/components/hooks/use-toast";
 
 const FormSchema = z.object({
   username: z.string().min(2, {
@@ -55,19 +54,29 @@ export function LoginForm() {
 
       window.location.href = redirectUrl;
     } else {
-      console.log("Sign-in error:", res);
+      // Обработка ошибки авторизации
+      let errorMessage = "Authentication failed. Please try again.";
+      if (res?.error === "user_not_verified") {
+        errorMessage =
+          "Your account is not verified. Please verify your email.";
+      } else if (res?.error === "invalid_password") {
+        errorMessage = "Invalid password. Please try again.";
+      } else if (res?.error === "user_not_found") {
+        errorMessage = "User not found.";
+      }
+      console.log(errorMessage);
+      // Устанавливаем ошибку на уровне формы
+      form.setError("root", {
+        type: "manual",
+        message: errorMessage,
+      });
     }
   }
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
     handleSubmit(data);
     toast({
-      title: "You submitted the following values:",
-      description: (
-        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-        </pre>
-      ),
+      title: "Добро пожаловать " + data.username,
     });
   }
 
@@ -75,7 +84,6 @@ export function LoginForm() {
 
   return (
     <>
-      {session?.user.role === "admin" && <Register />}
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className=" space-y-6">
           <FormField
@@ -131,6 +139,9 @@ export function LoginForm() {
               </FormItem>
             )}
           />
+          {form.formState.errors.root && (
+            <FormMessage>{form.formState.errors.root.message}</FormMessage>
+          )}
           <Button type="submit">Submit</Button>
         </form>
       </Form>

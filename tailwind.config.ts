@@ -22,7 +22,7 @@ const config = {
         "login-bg": "url('/assets/images/signIn/background.gif')",
       },
       fontFamily: {
-        sans: ["var(--font-sans)", ...fontFamily.sans],
+        sans: ["jet-brains", ...fontFamily.sans],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -107,6 +107,16 @@ const config = {
             opacity: "1",
           },
         },
+        "switch-form": {
+          "0%": {
+            opacity: "0",
+            transform: "translateX(-100%)",
+          },
+          "100%": {
+            opacity: "1",
+            transform: "translateX(0)",
+          },
+        },
       },
       animation: {
         login: "login ease-in-out 1.5s",
@@ -114,10 +124,11 @@ const config = {
         card: "card linear 3s",
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "switch-form": "switch-form 0.5s ease forwards",
       },
     },
   },
- plugins: [require("tailwindcss-animate")],
+  plugins: [require("tailwindcss-animate")],
 } satisfies Config;
 
 export default config;

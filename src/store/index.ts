@@ -1,4 +1,5 @@
 import { getAllPosts, getAllPostsBySearch } from "@/services/posts";
+import { getAllUsers } from "@/services/users";
 import { create } from "zustand";
 
 interface UsePosts {
@@ -10,6 +11,11 @@ interface UsePosts {
 interface AdminState {
   admin: boolean;
   changeAdmin: (arg0: boolean) => void;
+}
+interface UserState {
+  users: any[];
+  loading: boolean;
+  getAllUsers: () => Promise<void>;
 }
 
 export const usePosts = create<UsePosts>()((set) => ({
@@ -33,4 +39,14 @@ export const useAdmin = create<AdminState>((set) => ({
     set(() => ({
       admin: state,
     })),
+}));
+
+export const useUser = create<UserState>((set) => ({
+  users: [],
+  loading: false,
+  getAllUsers: async () => {
+    set({ loading: true });
+    const users = await getAllUsers();
+    set({ users, loading: false });
+  },
 }));

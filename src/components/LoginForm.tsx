@@ -72,15 +72,15 @@ export function LoginForm() {
       });
     }
   }
-
+  const { data: session, status } = useSession();
   function onSubmit(data: z.infer<typeof FormSchema>) {
     handleSubmit(data);
-    toast({
-      title: "Добро пожаловать " + data.username,
-    });
+    if (session) {
+      toast({
+        title: "Добро пожаловать " + data.username,
+      });
+    }
   }
-
-  const { data: session, status } = useSession();
 
   return (
     <>

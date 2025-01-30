@@ -10,10 +10,14 @@ export default withAuth(
 
     // Проверяем, авторизован ли пользователь и какая у него роль
     const isAdmin = userRole === "admin";
-    const isUser = userRole === "user";
     const isGuest = userRole === "guest";
-    const isAuthenticated = isAdmin || isUser || isGuest;
-
+    const isStage1 = userRole === "stage1";
+    const isStage2 = userRole === "stage2";
+    const isStage3 = userRole === "stage3";
+    const isStage4 = userRole === "stage4";
+    const isAuthenticated =
+      isAdmin || isGuest || isStage1 || isStage2 || isStage3 || isStage4;
+    console.log(userRole);
     // Задаем доступные маршруты и условия доступа
     const path = req.nextUrl.pathname;
     if (!isAuthenticated) {
@@ -22,16 +26,56 @@ export default withAuth(
     } else if (isAdmin) {
       // Админу доступны все страницы
       return NextResponse.next();
-    } else if (isUser) {
+    } else if (isStage1) {
+      console.log("stage1 true");
       // Пользователь с ролью "user" может получить доступ только к /stage1
       if (path.startsWith("/stage1")) {
         return NextResponse.next();
       } else {
         // Доступ к остальным страницам запрещен
-        return NextResponse.redirect(new URL("/403", req.url));
+        if (!path.endsWith("/needexam")) {
+          return NextResponse.redirect(new URL(path + "/needexam", req.url));
+        }
+        return NextResponse.next();
+      }
+    } else if (isStage2) {
+      if (path.startsWith("/stage1") || path.startsWith("/stage2")) {
+        return NextResponse.next();
+      } else {
+        if (!path.endsWith("/needexam")) {
+          return NextResponse.redirect(new URL(path + "/needexam", req.url));
+        }
+        return NextResponse.next();
+      }
+    } else if (isStage3) {
+      if (
+        path.startsWith("/stage1") ||
+        path.startsWith("/stage2") ||
+        path.startsWith("/stage3")
+      ) {
+        return NextResponse.next();
+      } else {
+        if (!path.endsWith("/needexam")) {
+          return NextResponse.redirect(new URL(path + "/needexam", req.url));
+        }
+        return NextResponse.next();
+      }
+    } else if (isStage4) {
+      if (
+        path.startsWith("/stage1") ||
+        path.startsWith("/stage2") ||
+        path.startsWith("/stage3") ||
+        path.startsWith("/stage4")
+      ) {
+        return NextResponse.next();
+      } else {
+        if (!path.endsWith("/needexam")) {
+          return NextResponse.redirect(new URL(path + "/needexam", req.url));
+        }
+        return NextResponse.next();
       }
     } else if (isGuest) {
-      return NextResponse.redirect(new URL("/signin", req.url));
+      return NextResponse.redirect(new URL("/guestpage", req.url));
     }
 
     // Для всех остальных случаев (например, неизвестная роль)
@@ -40,10 +84,16 @@ export default withAuth(
   {
     callbacks: {
       authorized: ({ token }) => {
-        const isAdmin = token?.role === "admin";
-        const isUser = token?.role === "user";
-        const isGuest = token?.role === "guest";
-        const isAuthenticated = isAdmin || isUser || isGuest;
+        const userRole = token?.role;
+        const isAdmin = userRole === "admin";
+        const isGuest = userRole === "guest";
+        const isStage1 = userRole === "stage1";
+        const isStage2 = userRole === "stage2";
+        const isStage3 = userRole === "stage3";
+        const isStage4 = userRole === "stage4";
+        const isAuthenticated =
+          isAdmin || isGuest || isStage1 || isStage2 || isStage3 || isStage4;
+
         return isAuthenticated;
       },
     },

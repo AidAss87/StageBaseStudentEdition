@@ -63,10 +63,11 @@ function editSrc(body: string, title: string): string {
     const srcAttr = img.getAttribute("src") || "";
     if (!srcAttr.includes("http")) {
       const newAttr = path.join(
-        `/assets/images/post/${title + srcAttr.split("/")[1]}`
+        `/assets/images/post/${title + srcAttr}`
           .replaceAll(" ", "_")
           .replaceAll("%20", "_")
       );
+      console.log(srcAttr.split("/")[1]);
       img.setAttribute("src", newAttr);
     }
   });

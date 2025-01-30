@@ -7,6 +7,7 @@ import { buttonVariants } from "@/components/ui/button";
 import Image from "next/image";
 import logo from "../assets/images/logo.svg";
 import { activeLink } from "@/services/activeRoute";
+import { ThemeButton } from "./ThemeButton";
 
 type NavLink = {
   label: string;
@@ -47,27 +48,43 @@ export const Navigation = ({ navLinks }: Props) => {
           })}
         </ul>
       </nav>
-      {session?.user.role === "admin" &&
-        <Link className={`py-5 px-10 font-serif text-white`} href={"/users"}>
-          Пользователи
-        </Link>}
-      {!(status === "authenticated") ? (
-        <Link className={`py-5 px-10 font-serif text-white`} href={"/signin"}>
-          Log in
-        </Link>
-      ) : (
-        <Link
-          onClick={async () => {
-            signOut({
-              callbackUrl: "/signin",
-            });
-          }}
-          className={`py-5 px-10 font-serif text-white`}
-          href={""}
-        >
-          Log Out
-        </Link>
-      )}
+      <div className="flex">
+        {session?.user.role === "admin" && (
+          <Link
+            className={`${buttonVariants({
+              variant: "nav",
+            })} hover:${buttonVariants({ variant: "navActive" })}`}
+            href={"/users"}
+          >
+            Пользователи
+          </Link>
+        )}
+        {!(status === "authenticated") ? (
+          <Link
+            className={`${buttonVariants({
+              variant: "nav",
+            })} hover:${buttonVariants({ variant: "navActive" })}`}
+            href={"/signin"}
+          >
+            Войти
+          </Link>
+        ) : (
+          <Link
+            onClick={async () => {
+              signOut({
+                callbackUrl: "/signin",
+              });
+            }}
+            className={`${buttonVariants({
+              variant: "nav",
+            })} hover:${buttonVariants({ variant: "navActive" })}`}
+            href={""}
+          >
+            Выйти
+          </Link>
+        )}
+        <ThemeButton />
+      </div>
     </>
   );
 };

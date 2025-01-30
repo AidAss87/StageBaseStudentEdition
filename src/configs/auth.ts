@@ -28,7 +28,7 @@ const authConfig = {
 
         // Проверка верификации
         if (!user.isVerified) {
-          throw new Error("user_not_verified");
+          throw new Error(`user_not_verified`);
         }
 
         if (user) {

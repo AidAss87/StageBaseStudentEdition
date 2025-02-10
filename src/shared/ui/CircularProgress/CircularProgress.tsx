@@ -1,6 +1,4 @@
-"use client";
-
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useCallback } from "react";
 import styles from "./CircularProgress.module.css";
 
 interface CircularProgressProps {
@@ -23,9 +21,9 @@ export const CircularProgress: React.FC<CircularProgressProps> = ({
   fontSize = size / 5,
 }) => {
   const center = size / 2;
-  const radius = center; // для «пиццы» используем весь радиус
+  const radius = center;
 
-  // Реф для элемента <path>, который отображает прогресс
+  // Реф для элемента <path>, который отображает сектор
   const pathRef = useRef<SVGPathElement>(null);
   // Реф для хранения текущего анимированного значения
   const currentValueRef = useRef(0);
@@ -46,33 +44,23 @@ export const CircularProgress: React.FC<CircularProgressProps> = ({
     };
   };
 
-  // Функция обновления атрибута d у <path>
-  const updatePath = (animatedValue: number) => {
-    const progressAngle = (animatedValue / 100) * 360;
-    if (!pathRef.current) return;
-    let d = "";
-    if (progressAngle >= 360) {
-      // Если угол равен или превышает 360°, рисуем полный круг.
-      // Один из распространённых способов — построить два дуговых сегмента.
-      const start = polarToCartesian(center, center, radius, -90);
-      const mid = polarToCartesian(center, center, radius, 90);
-      d =
-        `M ${start.x} ${start.y} ` +
-        `A ${radius} ${radius} 0 1 1 ${mid.x} ${mid.y} ` +
-        `A ${radius} ${radius} 0 1 1 ${start.x} ${start.y} Z`;
-    } else {
-      const startAngle = -90;
+  // Оборачиваем updatePath в useCallback, чтобы он не пересоздавался при каждом рендере
+  const updatePath = useCallback(
+    (animatedValue: number) => {
+      const progressAngle = (animatedValue / 100) * 360;
+      if (progressAngle <= 0 || !pathRef.current) {
+        return;
+      }
+      const startAngle = -90; // начало отсчёта сверху
       const endAngle = startAngle + progressAngle;
       const start = polarToCartesian(center, center, radius, startAngle);
       const end = polarToCartesian(center, center, radius, endAngle);
       const largeArcFlag = progressAngle > 180 ? 1 : 0;
-      d =
-        `M ${center} ${center} ` +
-        `L ${start.x} ${start.y} ` +
-        `A ${radius} ${radius} 0 ${largeArcFlag} 1 ${end.x} ${end.y} Z`;
-    }
-    pathRef.current.setAttribute("d", d);
-  };
+      const d = `M ${center} ${center} L ${start.x} ${start.y} A ${radius} ${radius} 0 ${largeArcFlag} 1 ${end.x} ${end.y} Z`;
+      pathRef.current.setAttribute("d", d);
+    },
+    [center, radius]
+  );
 
   useEffect(() => {
     const animationDuration = 1000; // длительность анимации в мс
@@ -96,7 +84,7 @@ export const CircularProgress: React.FC<CircularProgressProps> = ({
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [value, center, radius]);
+  }, [value, center, radius, updatePath]);
 
   return (
     <div
@@ -106,7 +94,7 @@ export const CircularProgress: React.FC<CircularProgressProps> = ({
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
         {/* Фон: полностью заполненный круг */}
         <circle cx={center} cy={center} r={radius} fill={backgroundColor} />
-        {/* Прогресс: обновляемый элемент <path> */}
+        {/* Прогресс: один элемент <path> обновляется напрямую */}
         <path
           ref={pathRef}
           fill={color}
@@ -131,5 +119,3 @@ export const CircularProgress: React.FC<CircularProgressProps> = ({
     </div>
   );
 };
-
-export default CircularProgress;

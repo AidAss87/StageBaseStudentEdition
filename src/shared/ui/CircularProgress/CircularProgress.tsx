@@ -1,64 +1,38 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import styles from "./CircularProgress.module.css";
 
 interface CircularProgressProps {
-  value: number; // 0–100
-  size?: number; // Размер круга (по умолчанию 100)
-  strokeWidth?: number; // Толщина линии (по умолчанию 10)
-  color?: string; // Цвет прогресса (по умолчанию #007bff)
-  backgroundColor?: string; // Цвет фона круга (по умолчанию #e0e0e0)
-  textColor?: string; // Цвет текста
-  text?: string;
-  fontSize?: number;
+  value: number; // от 0 до 100
+  size?: number; // размер элемента (по умолчанию 100)
+  color?: string; // цвет заполненной части (по умолчанию "#007bff")
+  backgroundColor?: string; // цвет фона (по умолчанию "#e0e0e0")
+  textColor?: string; // цвет текста (по умолчанию "#000")
+  text?: string; // текст, отображаемый в центре
+  fontSize?: number; // размер шрифта (по умолчанию size/5)
 }
 
 export const CircularProgress: React.FC<CircularProgressProps> = ({
   value,
   size = 100,
-  strokeWidth = 10,
   color = "#007bff",
   backgroundColor = "#e0e0e0",
   textColor = "#000",
   text = `${value}%`,
   fontSize = size / 5,
 }) => {
-  const radius = (size - strokeWidth) / 2;
   const center = size / 2;
+  const radius = center; // для «пиццы» используем весь радиус
 
-  // Состояние для анимации
-  const [animatedValue, setAnimatedValue] = useState(0);
+  // Реф для элемента <path>, который отображает прогресс
+  const pathRef = useRef<SVGPathElement>(null);
+  // Реф для хранения текущего анимированного значения
+  const currentValueRef = useRef(0);
+  // Реф для хранения id requestAnimationFrame
+  const animationFrameRef = useRef<number | null>(null);
 
-  // Анимация изменения значения
-  useEffect(() => {
-    const animationDuration = 1000; // Длительность анимации в миллисекундах
-    const startTime = Date.now();
-
-    const animate = () => {
-      const currentTime = Date.now();
-      const progress = Math.min((currentTime - startTime) / animationDuration, 1);
-      setAnimatedValue(progress * value);
-
-      if (progress < 1) {
-        requestAnimationFrame(animate);
-      }
-    };
-
-    animate();
-  }, [value]);
-
-  // Функция для создания сегмента круга
-  const createSegment = (startAngle: number, endAngle: number) => {
-    const start = polarToCartesian(center, center, radius, startAngle);
-    const end = polarToCartesian(center, center, radius, endAngle);
-
-    const largeArcFlag = endAngle - startAngle <= 180 ? "0" : "1";
-
-    return `M ${start.x} ${start.y} A ${radius} ${radius} 0 ${largeArcFlag} 1 ${end.x} ${end.y} L ${center} ${center} Z`;
-  };
-
-  // Функция для преобразования полярных координат в декартовы
+  // Функция преобразования полярных координат в декартовы
   const polarToCartesian = (
     centerX: number,
     centerY: number,
@@ -66,75 +40,96 @@ export const CircularProgress: React.FC<CircularProgressProps> = ({
     angleInDegrees: number
   ) => {
     const angleInRadians = ((angleInDegrees - 90) * Math.PI) / 180.0;
-
     return {
       x: centerX + radius * Math.cos(angleInRadians),
       y: centerY + radius * Math.sin(angleInRadians),
     };
   };
 
-  // Создаем сегменты
-  const segments = [];
-  const segmentCount = 4; // Количество сегментов
-  const segmentAngle = 360 / segmentCount;
-  const filledSegments = Math.floor((animatedValue / 100) * segmentCount);
+  // Функция обновления атрибута d у <path>
+  const updatePath = (animatedValue: number) => {
+    const progressAngle = (animatedValue / 100) * 360;
+    if (!pathRef.current) return;
+    let d = "";
+    if (progressAngle >= 360) {
+      // Если угол равен или превышает 360°, рисуем полный круг.
+      // Один из распространённых способов — построить два дуговых сегмента.
+      const start = polarToCartesian(center, center, radius, -90);
+      const mid = polarToCartesian(center, center, radius, 90);
+      d =
+        `M ${start.x} ${start.y} ` +
+        `A ${radius} ${radius} 0 1 1 ${mid.x} ${mid.y} ` +
+        `A ${radius} ${radius} 0 1 1 ${start.x} ${start.y} Z`;
+    } else {
+      const startAngle = -90;
+      const endAngle = startAngle + progressAngle;
+      const start = polarToCartesian(center, center, radius, startAngle);
+      const end = polarToCartesian(center, center, radius, endAngle);
+      const largeArcFlag = progressAngle > 180 ? 1 : 0;
+      d =
+        `M ${center} ${center} ` +
+        `L ${start.x} ${start.y} ` +
+        `A ${radius} ${radius} 0 ${largeArcFlag} 1 ${end.x} ${end.y} Z`;
+    }
+    pathRef.current.setAttribute("d", d);
+  };
 
-  for (let i = 0; i < filledSegments; i++) {
-    const startAngle = i * segmentAngle;
-    const endAngle = (i + 1) * segmentAngle;
-    segments.push(
-      <path
-        key={i}
-        d={createSegment(startAngle, endAngle)}
-        fill={color}
-        stroke="none"
-        className={styles.segment}
-      />
-    );
-  }
+  useEffect(() => {
+    const animationDuration = 1000; // длительность анимации в мс
+    const startValue = currentValueRef.current;
+    const targetValue = value;
+    const startTime = performance.now();
 
-  // Последний частично заполненный сегмент
-  const partialSegmentAngle = (animatedValue / 100) * 360 - filledSegments * segmentAngle;
-  if (partialSegmentAngle > 0) {
-    const startAngle = filledSegments * segmentAngle;
-    const endAngle = startAngle + partialSegmentAngle;
-    segments.push(
-      <path
-        key="partial"
-        d={createSegment(startAngle, endAngle)}
-        fill={color}
-        stroke="none"
-        className={styles.segment}
-      />
-    );
-  }
+    const animate = (now: number) => {
+      const progress = Math.min((now - startTime) / animationDuration, 1);
+      const newValue = startValue + progress * (targetValue - startValue);
+      currentValueRef.current = newValue;
+      updatePath(newValue);
+      if (progress < 1) {
+        animationFrameRef.current = requestAnimationFrame(animate);
+      }
+    };
+
+    animationFrameRef.current = requestAnimationFrame(animate);
+    return () => {
+      if (animationFrameRef.current !== null) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+    };
+  }, [value, center, radius]);
 
   return (
-    <div className="relative">
-      <svg
-        width={size}
-        height={size}
-        viewBox={`0 0 ${size} ${size}`}
-        className={styles.circularProgress}
-      >
-        {/* Фон круга */}
-        <circle
-          cx={center}
-          cy={center}
-          r={radius}
-          stroke={backgroundColor}
-          strokeWidth={strokeWidth}
-          fill="none"
+    <div
+      className="relative"
+      style={{ width: size, height: size, position: "relative" }}
+    >
+      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+        {/* Фон: полностью заполненный круг */}
+        <circle cx={center} cy={center} r={radius} fill={backgroundColor} />
+        {/* Прогресс: обновляемый элемент <path> */}
+        <path
+          ref={pathRef}
+          fill={color}
+          stroke="none"
+          style={{ transition: "fill 1000ms ease" }}
         />
-        {/* Заполненные сегменты */}
-        {segments}
       </svg>
       <p
-        className="text-xs w-full text-center absolute left-0 top-1/2  -translate-y-1/2"
-        style={{ width: size, color: textColor, fontSize: `${fontSize}px` }}
+        className="text-xs text-center absolute"
+        style={{
+          left: 0,
+          top: "50%",
+          transform: "translateY(-50%)",
+          width: size,
+          color: textColor,
+          fontSize: `${fontSize}px`,
+          margin: 0,
+        }}
       >
         {text}
       </p>
     </div>
   );
 };
+
+export default CircularProgress;

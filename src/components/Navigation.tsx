@@ -15,9 +15,11 @@ type NavLink = {
 };
 type Props = {
   navLinks: NavLink[];
+  onStageChange: (index: number) => void;
+  currentStage: number; // Добавляем currentStage для определения активного этапа
 };
 
-export const Navigation = ({ navLinks }: Props) => {
+export const Navigation = ({ navLinks, onStageChange }: Props) => {
   const pathname = usePathname();
   const { data: session, status } = useSession();
   const opa = useSession();
@@ -29,12 +31,13 @@ export const Navigation = ({ navLinks }: Props) => {
       <nav>
         <ul className="flex h-full ">
           {/* <Image src={logo} alt={"logo"} className="w-16 h-16 bg-white/50 "  /> */}
-          {navLinks.map((link) => {
+          {navLinks.map((link, index) => {
             const isActive = activeLink(link.href, pathname, callbackUrl);
             return (
               <li key={link.label} className="flex items-center">
                 <Link
                   href={link.href}
+                  onClick={() => onStageChange(index)}
                   className={
                     isActive
                       ? buttonVariants({ variant: "navActive" })

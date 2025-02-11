@@ -1,7 +1,6 @@
-"use client"
+"use client";
 
-
-import CircularProgress from "@/shared/ui/CircularProgress/CircularProgress";
+import { CircularProgress } from "@/shared/ui/CircularProgress/CircularProgress";
 import { useStage } from "@/store";
 import React from "react";
 
@@ -33,7 +32,6 @@ export const StageButtons = () => {
           size={200}
           color={currentStageData.color}
           text={stageText}
-          
         />
       </div>
       <div className="mt-4">

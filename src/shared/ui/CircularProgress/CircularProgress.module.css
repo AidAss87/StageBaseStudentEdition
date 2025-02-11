@@ -1,0 +1,15 @@
+@keyframes brightnessPulse {
+  0% {
+    filter: brightness(1); /* Исходная яркость */
+  }
+  50% {
+    filter: brightness(1.2); /* Увеличенная яркость (светлее) */
+  }
+  100% {
+    filter: brightness(0.8); /* Уменьшенная яркость (темнее) */
+  }
+}
+
+.brightnessPulsePath {
+  animation: brightnessPulse 1.5s infinite ease-in-out; /* Анимация будет длиться 2 секунды и повторяться бесконечно */
+}

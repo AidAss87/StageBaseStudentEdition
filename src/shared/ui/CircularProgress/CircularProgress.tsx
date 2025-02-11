@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef } from "react";
+
 import styles from "./CircularProgress.module.css";
 
 interface CircularProgressProps {
@@ -102,6 +103,7 @@ export const CircularProgress: React.FC<CircularProgressProps> = ({
     <div
       className="relative"
       style={{ width: size, height: size, position: "relative" }}
+      
     >
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
         {/* Фон: полностью заполненный круг */}
@@ -112,18 +114,19 @@ export const CircularProgress: React.FC<CircularProgressProps> = ({
           fill={color}
           stroke="none"
           style={{ transition: "fill 1000ms ease" }}
+          className={styles.brightnessPulsePath}
         />
       </svg>
       <p
-        className="text-xs text-center absolute"
+        className="text-xs text-center absolute "
         style={{
-          left: 0,
+          left: "50%",
           top: "50%",
-          transform: "translateY(-50%)",
-          width: size,
+          transform: "translate(-50%, -50%)",
           color: textColor,
           fontSize: `${fontSize}px`,
           margin: 0,
+          lineHeight: "1",
         }}
       >
         {text}

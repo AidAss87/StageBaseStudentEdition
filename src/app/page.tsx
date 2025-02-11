@@ -1,12 +1,10 @@
-import { CircularProgress } from "@/shared/ui/CircularProgress/CircularProgress";
+import { StageButtons } from "@/components/StageButtons";
 
 export default function Home() {
   return (
     <div>
-      <h1 className="">Wow </h1>
-      <div>
-        <CircularProgress value={0} size={120} strokeWidth={10} color="green" />
-      </div>
+      <h1>Wow</h1>
+      <StageButtons />
     </div>
   );
 }

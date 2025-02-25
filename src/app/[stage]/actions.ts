@@ -67,6 +67,7 @@ export async function removePost(id: string, stage: string) {
   redirect(`/stage${stage}`);
 }
 
+
 async function upladeImage(data: FormData) {
   console.log("work");
   try {

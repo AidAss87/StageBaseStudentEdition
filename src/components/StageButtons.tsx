@@ -5,10 +5,11 @@ import { useStage } from "@/store";
 import React from "react";
 
 const stageData = [
-  { color: "green", text: "Stage 1" },
-  { color: "yellow", text: "Stage 2" },
-  { color: "orange", text: "Stage 3" },
-  { color: "red", text: "Stage 4" },
+  { id: 0, color: "green", text: "Stage 1" },
+  { id: 1, color: "yellow", text: "Stage 2" },
+  { id: 2, color: "orange", text: "Stage 3" },
+  { id: 3, color: "red", text: "Stage 4" },
+
 ];
 
 export const StageButtons = () => {

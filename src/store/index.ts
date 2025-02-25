@@ -1,5 +1,6 @@
 import { getAllPosts, getAllPostsBySearch } from "@/services/posts";
 import { getAllUsers } from "@/services/users";
+import { StageState } from "@/shared/model/types/StageState/StageState.types";
 import { create } from "zustand";
 
 interface UsePosts {
@@ -49,4 +50,10 @@ export const useUser = create<UserState>((set) => ({
     const users = await getAllUsers();
     set({ users, loading: false });
   },
+}));
+
+
+export const useStage = create<StageState>((set) => ({
+  currentStage: 0,
+  setCurrentStage: (index) => set({ currentStage: index }),
 }));

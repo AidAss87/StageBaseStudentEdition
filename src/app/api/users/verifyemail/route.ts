@@ -23,8 +23,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Invalid token" }, { status: 400 });
     }
 
-    console.log(user);
-
     // Update the user record to mark as verified and remove the token
     await prisma.user.update({
       where: { id: user.id },

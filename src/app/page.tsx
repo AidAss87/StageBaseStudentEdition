@@ -1,10 +1,10 @@
-
+import { StageButtons } from "@/components/StageButtons";
 
 export default function Home() {
   return (
-    <h1 className="">
-      Wow
-
-    </h1>
+    <div>
+      <h1>Wow</h1>
+      <StageButtons />
+    </div>
   );
 }

@@ -3,7 +3,7 @@ import Link from "next/link";
 
 import { useAdmin, usePosts } from "@/store";
 import { shallow } from "zustand/shallow";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { usePathname, useSearchParams } from "next/navigation";
 import { activeLink } from "@/services/activeRoute";
@@ -29,11 +29,18 @@ export const TitleAside = ({ stage }: { stage: string }) => {
   useEffect(() => {
     getAllPosts(stage);
   }, [getAllPosts]);
+  const [searchQuery, setSearchQuery] = useState(""); ///??
   const { data: session, status } = useSession();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/";
   console.log(stage);
+
+  // Фильтрация постов на основе поискового запроса
+  const filteredPosts = posts.filter((post) =>
+    post.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <aside className="fixed top-14 z-30 -ml-2 hidden h-[calc(100vh-3.5rem)] w-1/5 shrink-0 md:sticky md:block">
       <div className="relative overflow-hidden h-full py-6 pr-6 lg:py-8">
@@ -41,6 +48,15 @@ export const TitleAside = ({ stage }: { stage: string }) => {
           className="h-full w-full rounded-[inherit]"
           style={{ overflow: " hidden scroll" }}
         >
+          {/* Поле поиска */}
+          <input
+            type="text"
+            placeholder="Поиск по темам..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full px-4 py-2 mb-4 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />  {/* Поле поиска */}
+    
           {session?.user.role === "admin" &&
             (admin ? (
               <Button
@@ -62,7 +78,7 @@ export const TitleAside = ({ stage }: { stage: string }) => {
           {loading ? (
             <h3>Loading...</h3>
           ) : (
-            posts.map((post: any) => {
+            filteredPosts.map((post: any) => {
               const isActive = activeLink(post.id, pathname, callbackUrl);
               return (
                 <li key={post.id}>

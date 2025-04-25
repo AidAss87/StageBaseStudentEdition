@@ -51,7 +51,7 @@ export default function TypingEffect() {
     <div className="flex flex-col items-center justify-center px-4 pt-2">
       <div
         id="swiper-area"
-        className="absolute inset-0 h-screen w-screen z-50"
+        className="absolute inset-0 h-screen w-screen -z-50"
       ></div>
       <div className="font-mono text-2xl tracking-wide h-10 overflow-hidden">
         {displayedText}

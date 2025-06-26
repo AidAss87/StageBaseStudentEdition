@@ -1,4 +1,4 @@
-generator client {
+ generator client {
   provider = "prisma-client-js"
 }
 
@@ -8,11 +8,13 @@ datasource db {
 }
 
 model Post {
-  id    String @id @default(cuid())
-  title String
-  body  String
-  stage String @default("1")
+  id        String    @id @default(cuid())
+  title     String
+  body      String
+  stage     String    @default("1")
+  favorites Favorite[]
 }
+
 
 model User {
   id                        String    @id @default(uuid())
@@ -27,4 +29,16 @@ model User {
   verifyTokenExpiry         DateTime?
   createdAt                 DateTime  @default(now())
   updatedAt                 DateTime  @updatedAt
+  favorites Favorite[]
+}
+
+model Favorite {
+  id      String @id @default(cuid())
+  post    Post   @relation(fields: [postId], references: [id])
+  postId  String
+  user    User   @relation(fields: [userId], references: [id])
+  userId  String
+  createdAt DateTime @default(now())
+
+  @@unique([postId, userId])
 }

@@ -9,11 +9,7 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { activeLink } from "@/services/activeRoute";
 import { useSession } from "next-auth/react";
 import { DeletePostButton } from "./DeletePostButton";
-import { removePost } from "@/app/[stage]/actions";
-
-// type Props = {
-//   posts: any[];
-// };
+import { addFavorite, removeFavorite } from "@/features/api/favorites/action";
 
 export const TitleAside = ({ stage }: { stage: string }) => {
   const [posts, loading, getAllPosts] = usePosts(
@@ -26,20 +22,39 @@ export const TitleAside = ({ stage }: { stage: string }) => {
     shallow
   );
 
+  const { data: session } = useSession();
+
+  // Избранное - массив postId
+  const [favorites, setFavorites] = useState<string[]>([]);
+
+  // Загружаем избранное при монтировании и смене сессии
+  useEffect(() => {
+    if (!session) return;
+    fetch("/api/favorites")
+      .then((res) => res.json())
+      .then((data) => setFavorites(data.map((fav: any) => fav.postId)));
+  }, [session]);
+
   useEffect(() => {
     getAllPosts(stage);
-  }, [getAllPosts]);
-  const [searchQuery, setSearchQuery] = useState(""); ///??
-  const { data: session, status } = useSession();
+  }, [getAllPosts, stage]);
+
+  const [searchQuery, setSearchQuery] = useState("");
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/";
-  console.log(stage);
 
-  // Фильтрация постов на основе поискового запроса
   const filteredPosts = posts.filter((post) =>
     post.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  // Обновить избранное после формы - можно добавить так, или через mutate
+  const refreshFavorites = () => {
+    if (!session) return;
+    fetch("/api/favorites")
+      .then((res) => res.json())
+      .then((data) => setFavorites(data.map((fav: any) => fav.postId)));
+  };
 
   return (
     <aside className="fixed top-14 z-30 -ml-2 hidden h-[calc(100vh-3.5rem)] w-1/5 shrink-0 md:sticky md:block">
@@ -48,15 +63,13 @@ export const TitleAside = ({ stage }: { stage: string }) => {
           className="h-full w-full rounded-[inherit]"
           style={{ overflow: " hidden scroll" }}
         >
-          {/* Поле поиска */}
           <input
             type="text"
             placeholder="Поиск по темам..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full px-4 py-2 mb-4 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />  {/* Поле поиска */}
-    
+          />
           {session?.user.role === "admin" &&
             (admin ? (
               <Button
@@ -80,18 +93,57 @@ export const TitleAside = ({ stage }: { stage: string }) => {
           ) : (
             filteredPosts.map((post: any) => {
               const isActive = activeLink(post.id, pathname, callbackUrl);
+              const isFav = favorites.includes(post.id);
+
               return (
-                <li key={post.id}>
+                <li key={post.id} className="flex items-center justify-between">
                   <Link
                     href={`/stage${stage}/${post.id}`}
                     className={
                       isActive
-                        ? buttonVariants({ variant: "navActive" }) + " link"
-                        : buttonVariants({ variant: "nav" }) + " link"
+                        ? buttonVariants({ variant: "navActive" }) +
+                          " link flex-grow"
+                        : buttonVariants({ variant: "nav" }) + " link flex-grow"
                     }
                   >
                     {post.title}
                   </Link>
+
+                  {session && (
+                    <div className="ml-2 flex gap-2">
+                      {isFav ? (
+                        <div>
+                          <input type="hidden" name="postId" value={post.id} />
+                          <button
+                            onClick={async () => {
+                              console.log(post.id, session.user);
+                              await removeFavorite(post.id, session.user.id);
+                            }}
+                            type="submit"
+                            className="text-gray-400 text-xl"
+                            aria-label="Добавить в избранное"
+                          >
+                            ☆
+                          </button>
+                        </div>
+                      ) : (
+                        <div>
+                          <button
+                            onClick={async () => {
+                              console.log(post.id, session.user);
+                              await addFavorite(post.id, session.user.id);
+                            }}
+                            type="submit"
+                            className="text-gray-400 text-xl"
+                            aria-label="Добавить в избранное"
+                          >
+                            ☆
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
                   {session?.user.role === "admin" && admin && (
                     <div className="mt-2 flex flex-col gap-2">
                       <Link

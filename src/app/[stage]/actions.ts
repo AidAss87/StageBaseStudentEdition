@@ -1,5 +1,7 @@
 "use server";
+import authConfig from "@/configs/auth";
 import { prisma } from "@/lib/prisma";
+import { getServerSession } from "next-auth";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
@@ -67,7 +69,6 @@ export async function removePost(id: string, stage: string) {
   redirect(`/stage${stage}`);
 }
 
-
 async function upladeImage(data: FormData) {
   console.log("work");
   try {
@@ -81,3 +82,4 @@ async function upladeImage(data: FormData) {
     console.error("Error uploading images:", error);
   }
 }
+

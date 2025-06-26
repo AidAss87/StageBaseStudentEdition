@@ -1,8 +1,56 @@
 "use client";
+import ASideStages from "@/components/StageSelector";
+import { StageViewer } from "@/components/StageViewer";
 import Cube from "@/home_page.tsx/cube";
+import { CircularProgress } from "@/shared/ui/CircularProgress/CircularProgress";
 import { useState, useEffect } from "react";
 
 const texts = ["Hello, Junior!", "Привет, Студент!"];
+
+const stageData = [
+  {
+    id: 0,
+    color: "#4CAF50", // Зеленый
+    text: "READ ME",
+    code: "console.log('Stage 1');",
+    description: "Вступление",
+  },
+  {
+    id: 1,
+    color: "#4CAF50", // Зеленый
+    text: "Stage 1",
+    code: "console.log('Stage 1');",
+    description: "Первый этап",
+  },
+  {
+    id: 2,
+    color: "#FFEB3B", // Желтый
+    text: "Stage 2",
+    code: "console.log('Stage 2');",
+    description: "Второй этап",
+  },
+  {
+    id: 3,
+    color: "#FF9800", // Оранжевый
+    text: "Stage 3",
+    code: "console.log('Stage 3');",
+    description: "Третий этап",
+  },
+  {
+    id: 4,
+    color: "#F44336", // Красный
+    text: "Stage 4",
+    code: "console.log('Stage 4');",
+    description: "Четвертый этап",
+  },
+  {
+    id: 5,
+    color: "#F44336", // Красный
+    text: "НАЧИНАЕМ",
+    code: "console.log('Stage 4');",
+    description: "Четвертый этап",
+  },
+];
 
 export default function TypingEffect() {
   const [displayedText, setDisplayedText] = useState(""); // Начальное состояние пустое
@@ -10,6 +58,9 @@ export default function TypingEffect() {
   const [currentTextIndex, setCurrentTextIndex] = useState(0);
   const [phase, setPhase] = useState(0); // 0 - печатаем, 1 - удаляем
   const [isCompleted, setIsCompleted] = useState(false); // Состояние завершения эффекта
+  const [currentStageIndex, setCurrentStageIndex] = useState(0); // Состояние текущего этапа
+
+  console.log(currentStageIndex);
 
   useEffect(() => {
     if (isCompleted) return; // Если эффект завершен, не выполняем код
@@ -47,18 +98,24 @@ export default function TypingEffect() {
     return () => clearInterval(interval);
   }, [index, phase, currentTextIndex, isCompleted]);
 
+  // Прогресс для CircularProgress
+  const totalStages = stageData.length; // Общее количество этапов
+  let progress = (currentStageIndex / (totalStages - 1)) * 100;
+  if (currentStageIndex === 0) {
+    progress = 0;
+  }
+
   return (
-    <div className="flex flex-col items-center justify-center px-4 pt-2">
-      <div
-        id="swiper-area"
-        className="absolute inset-0 h-screen w-screen z-50"
-      ></div>
-      <div className="font-mono text-2xl tracking-wide h-10 overflow-hidden">
-        {displayedText}
-      </div>
-      <div className="w-full max-w-2xl">
-        <Cube />
-      </div>
+    <div className="flex gap-32 px-4 pt-2 justify-center w-full">
+
+        <StageViewer
+          stageData={stageData}
+          currentStageIndex={currentStageIndex}
+          setCurrentStageIndex={setCurrentStageIndex}
+          progress={progress}
+        />
+     
+    
     </div>
   );
 }

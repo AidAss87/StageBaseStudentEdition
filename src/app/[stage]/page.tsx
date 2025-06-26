@@ -99,7 +99,8 @@ export default function stage1({
   params: { stage },
 }: {
   params: { stage: StageKey };
-}) {console.log(stage)
+}) {
+  console.log(stage);
   const stageData = stageDataMap[stage];
   return (
     <div className="container mx-auto p-6">

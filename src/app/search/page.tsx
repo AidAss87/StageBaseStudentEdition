@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link"; // Добавляем импорт Link
+import Link from "next/link";
 import axios from "axios";
 import { Modal } from "@/components/ui/Modal";
 
@@ -10,31 +10,39 @@ interface Post {
   id: string;
   title: string;
   body: string;
+  stage: string;
+  contextTitle?: string;
+  contextBody?: string;
 }
 
 export default function SearchPage() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState(""); // Дебаунс-переменная
   const [results, setResults] = useState<Post[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  // Дебаунсер: обновляем `debouncedQuery` после задержки
   useEffect(() => {
-    document.body.style.overflow = "hidden"; // Блокируем прокрутку
-    return () => {
-      document.body.style.overflow = "auto"; // Разблокируем при выходе
-    };
-  }, []);
+    const handler = setTimeout(() => {
+      setDebouncedQuery(searchQuery);
+    }, 500); // Задержка 500 мс
+
+    return () => clearTimeout(handler); // Очищаем таймер при изменении `searchQuery`
+  }, [searchQuery]);
+
+  // Автоматический поиск при изменении `debouncedQuery`
+  useEffect(() => {
+    if (debouncedQuery.trim()) {
+      fetchResults(debouncedQuery);
+    } else {
+      setResults([]); // Очищаем результаты, если строка пустая
+    }
+  }, [debouncedQuery]);
 
   const closeModal = () => {
-    router.back(); // Возвращаемся назад
-  };
-
-  const handleSearch = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      await fetchResults(searchQuery);
-    }
+    router.back();
   };
 
   const fetchResults = async (value: string) => {
@@ -50,28 +58,20 @@ export default function SearchPage() {
     }
   };
 
-  console.log("🔵 Отправка запроса на API:", `/api/search?q=${searchQuery}`);
-
   return (
     <Modal isOpen={true} onClose={closeModal}>
       <h2 className="text-xl font-semibold mb-4">Поиск по статьям</h2>
 
-      {/* Поле ввода и кнопка поиска */}
-      <form onSubmit={handleSearch} className="flex items-center mb-4">
+      {/* Поле ввода */}
+      <div className="flex items-center mb-4">
         <input
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="Введите запрос..."
-          className="px-4 py-2 border rounded-l-md flex-grow focus:ring-2 focus:ring-blue-500 outline-none"
+          className="px-4 py-2 border rounded-md flex-grow focus:ring-2 focus:ring-blue-500 outline-none"
         />
-        <button
-          type="submit"
-          className="px-4 py-2 bg-blue-500 text-white rounded-r-md hover:bg-blue-600 transition"
-        >
-          Искать
-        </button>
-      </form>
+      </div>
 
       {/* Результаты поиска */}
       {loading ? (
@@ -79,17 +79,23 @@ export default function SearchPage() {
       ) : error ? (
         <p className="text-red-500">{error}</p>
       ) : results.length > 0 ? (
-        <div className="space-y-4">
+        <div className="space-y-4 overflow-y-auto max-h-[600px]">
           {results.map((post) => (
             <div key={post.id} className="border p-4 rounded-lg shadow-sm">
-              {/* Добавляем ссылку */}
+              <p>- Stage {post.stage}</p>
               <Link
                 href={`/post/${post.id}`}
                 className="text-lg font-semibold hover:underline"
               >
                 {post.title}
               </Link>
-              <p className="text-gray-700">{post.body}</p>
+              {post.contextBody && (
+                <p className="text-sm text-gray-600 mt-2">
+                  <span className="bg-yellow-200 px-1 rounded">
+                    {post.contextBody}
+                  </span>
+                </p>
+              )}
             </div>
           ))}
         </div>

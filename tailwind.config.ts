@@ -20,9 +20,13 @@ const config = {
     extend: {
       backgroundImage: {
         "login-bg": "url('/assets/images/signIn/background.gif')",
+        "gradient-img": "url('/assets/images/GradientVector.svg')",
+        "second-gradient-img": "url('/assets/images/SecondGradientVector.svg')",
       },
       fontFamily: {
         sans: ["jet-brains", ...fontFamily.sans],
+        raleway: ["Raleway", "sans-serif"],
+        manrope: ["manrope", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",

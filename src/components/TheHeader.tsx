@@ -13,10 +13,11 @@ const navItems = [
 
 export const TheHeader = () => {
   return (
-    <header className="h-16 fixed top-0 z-50 w-full border-b border-border/40 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    //border-b border-border/40 backdrop-blur supports-[backdrop-filter]:bg-background/60 - это убрал у header
+    <header className="h-16 fixed top-0 z-50 w-full bg-white">
       <div className="container flex justify-between items-center h-full">
-        <SearchBar />
         <Navigation navLinks={navItems} />
+        {/* <SearchBar /> */}
       </div>
     </header>
   );

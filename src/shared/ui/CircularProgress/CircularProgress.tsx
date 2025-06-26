@@ -54,6 +54,16 @@ export const CircularProgress: React.FC<CircularProgressProps> = ({
       if (progressAngle <= 0 || !pathRef.current) {
         return;
       }
+      if (animatedValue >= 99.9) {
+        pathRef.current.setAttribute(
+          "d",
+          `M ${center},${center} m -${radius},0 a ${radius},${radius} 0 1,0 ${
+            radius * 2
+          },0 a ${radius},${radius} 0 1,0 -${radius * 2},0 Z`
+        );
+
+        return;
+      }
       const startAngle = -90; // начало отсчёта сверху
       const endAngle = startAngle + progressAngle;
       const start = polarToCartesian(center, center, radius, startAngle);
@@ -93,7 +103,6 @@ export const CircularProgress: React.FC<CircularProgressProps> = ({
     <div
       className="relative"
       style={{ width: size, height: size, position: "relative" }}
-      
     >
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
         {/* Фон: полностью заполненный круг */}
@@ -105,6 +114,7 @@ export const CircularProgress: React.FC<CircularProgressProps> = ({
           stroke="none"
           style={{ transition: "fill 1000ms ease" }}
           className={styles.brightnessPulsePath}
+          fillOpacity={0.6}
         />
       </svg>
       <p

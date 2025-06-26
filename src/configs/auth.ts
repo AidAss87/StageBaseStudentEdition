@@ -56,12 +56,14 @@ const authConfig = {
       if (user) {
         token.role = user.role; // Добавляем роль в JWT
         token.isVerified = user.isVerified;
+        token.userId = user.id;
       }
       return token;
     },
     async session({ session, token }) {
       if (token) {
-        session.user.role = token.role; // Передаем роль в сессию
+        session.user.role = token.role;
+        session.user.id = token.userId; // Передаем роль в сессию
       }
       return session;
     },
@@ -73,3 +75,5 @@ const authConfig = {
 };
 
 export default authConfig;
+
+export const authOptions = authConfig;

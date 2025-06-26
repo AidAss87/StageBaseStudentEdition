@@ -8,6 +8,7 @@ import Image from "next/image";
 import logo from "../assets/images/logo.svg";
 import { activeLink } from "@/services/activeRoute";
 import { ThemeButton } from "./ThemeButton";
+import SearchBar from "./SearchBar";
 
 type NavLink = {
   label: string;
@@ -16,21 +17,19 @@ type NavLink = {
 type Props = {
   navLinks: NavLink[];
   onStageChange: (index: number) => void;
-  currentStage: number; // Добавляем currentStage для определения активного этапа
+  currentStage: number;
 };
 
 export const Navigation = ({ navLinks, onStageChange }: Props) => {
   const pathname = usePathname();
   const { data: session, status } = useSession();
-  const opa = useSession();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/";
-  console.log(opa);
+
   return (
     <>
       <nav>
-        <ul className="flex h-full ">
-          {/* <Image src={logo} alt={"logo"} className="w-16 h-16 bg-white/50 "  /> */}
+        <ul className="flex h-full">
           {navLinks.map((link, index) => {
             const isActive = activeLink(link.href, pathname, callbackUrl);
             return (
@@ -51,41 +50,39 @@ export const Navigation = ({ navLinks, onStageChange }: Props) => {
           })}
         </ul>
       </nav>
-      <div className="flex">
+
+      <div className="flex gap-6">
+        <SearchBar />
+
+        {/* Только для администратора — ссылка на пользователей */}
         {session?.user.role === "admin" && (
-          <Link
-            className={`${buttonVariants({
-              variant: "nav",
-            })} hover:${buttonVariants({ variant: "navActive" })}`}
-            href={"/users"}
-          >
+          <Link className={buttonVariants({ variant: "nav" })} href="/users">
             Пользователи
           </Link>
         )}
-        {!(status === "authenticated") ? (
-          <Link
-            className={`${buttonVariants({
-              variant: "nav",
-            })} hover:${buttonVariants({ variant: "navActive" })}`}
-            href={"/signin"}
-          >
+
+        {/* Только для авторизованных — ссылка на "Мой профиль" */}
+        {status === "authenticated" && (
+          <Link className={buttonVariants({ variant: "nav" })} href="/profile">
+            Мой профиль
+          </Link>
+        )}
+
+        {/* Войти / Выйти */}
+        {status !== "authenticated" ? (
+          <Link className={buttonVariants({ variant: "nav" })} href="/signin">
             Войти
           </Link>
         ) : (
           <Link
-            onClick={async () => {
-              signOut({
-                callbackUrl: "/signin",
-              });
-            }}
-            className={`${buttonVariants({
-              variant: "nav",
-            })} hover:${buttonVariants({ variant: "navActive" })}`}
-            href={""}
+            onClick={() => signOut({ callbackUrl: "/signin" })}
+            className={buttonVariants({ variant: "nav" })}
+            href=""
           >
             Выйти
           </Link>
         )}
+
         <ThemeButton />
       </div>
     </>

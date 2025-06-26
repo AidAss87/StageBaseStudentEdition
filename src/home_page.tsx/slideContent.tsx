@@ -19,9 +19,10 @@ export const SlideContent: FC<{
 
   return (
     <div className="flex flex-col items-center justify-center text-center h-full ">
-      <div className="-rotate-90">
+      <div>
         <h2>{displayText}</h2>
         <p>{text}</p>
+
       </div>
     </div>
   );
